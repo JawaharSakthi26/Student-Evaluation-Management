@@ -35,36 +35,6 @@ class QuizController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        
-        $rules = [
-            'title' => 'required|max:255|string',
-            'questions' => 'required|array',
-            'questions.*.question' => 'required|max:255|string',
-            'questions.*.type' => 'required|integer|min:-128|max:127',
-            'questions.*.answers' => 'required|array',
-            'questions.*.answers.answer' => [
-                'sometimes',
-                function ($attribute, $value, $fail) {
-                    $questionType = request()->input("questions.$attribute.type");
-    
-                    if ($questionType != 3 && empty($value)) {
-                        $fail("The $attribute field is required because the question type is not 3.");
-                    }
-                },
-            ],
-            'questions.*.answers.isCorrect' => 'required',
-        ];
-        
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            if ($request->ajax()) {
-                return new JsonResponse(['errors' => $validator->errors()], 422);
-            } else {
-            return view('admin.quiz.create')->withErrors($validator)->withStatus(422);
-            }
-        }
 
         $title = Title::create([
             'title' => $request->input('title'),
@@ -131,34 +101,7 @@ class QuizController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        dd($data);
-        $rules = [
-            'title' => 'required|max:255|string',
-            'questions' => 'required|array',
-            'questions.*.question' => 'required|max:255|string',
-            'questions.*.type' => 'required|integer|min:-128|max:127',
-            'questions.*.answers' => 'required|array',
-            'questions.*.answers.answer' => [
-                'sometimes',
-                function ($attribute, $value, $fail) {
-                    $questionType = request()->input("questions.$attribute.type");
-
-                    if ($questionType != 3 && empty($value)) {
-                        $fail("The $attribute field is required because the question type is not 3.");
-                    }
-                },
-            ],
-            'questions.*.answers.isCorrect' => 'required',
-        ];
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            if ($request->ajax()) {
-                return new JsonResponse(['errors' => $validator->errors()], 422);
-            } else {
-                return redirect()->route('quiz.edit', $id)->withErrors($validator)->withStatus(422);
-            }
-        }
-
+        
         $title = Title::findOrFail($id);
         $title->update([
             'title' => $request->input('title'),
