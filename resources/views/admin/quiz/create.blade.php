@@ -179,7 +179,6 @@
                         </div>
                         <div class="col-sm-10">
                             <input type="file" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]">
-                            <img src="{{asset('/uploads/' + '${answer && answer.answer ? answer.answer : ''}')}}" alt="Image" />
                             <input type="hidden" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][id][]" value="${answer ? answer.id : ''}" placeholder="Enter Radio Answer">
                             <span class="error-message"></span>
                         </div>
