@@ -109,7 +109,7 @@ class QuizController extends Controller
                 ]
             );
 
-            $answerObj = $question->answers();
+            $answerObj = new Answer;
             $existingAnswerIds = $answerObj->pluck('id')->toArray();
     
             foreach ($questionData['answers']['answer'] as $key => $value) {
@@ -139,8 +139,8 @@ class QuizController extends Controller
                     }
                 } else {
                     if ($idArray && in_array($idArray, $existingAnswerIds)) {
-                        dump($idArray, $existingAnswerIds, $value, $isCorrect, $question->id);
-                        $answerObj->where('id', $idArray)->update([
+                        $dbData = $answerObj->find($idArray);
+                        $dbData->update([
                             'answer' => $value,
                             'isCorrect' => $isCorrect,
                             'question_id' => $question->id,

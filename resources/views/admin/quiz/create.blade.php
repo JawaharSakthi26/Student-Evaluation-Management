@@ -275,8 +275,8 @@
                             <input type="radio" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2 answer-check" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
                         </div>
                         <div class="col-sm-10">
-                            <input type="file" class="form-control image" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]">
-                            <img src="${imageSrc}" width="150" height="150" id="image-preview-${questionId}-${$("#" + answerContainerId + " .form-group").length + 1}">
+                            <input type="file" class="form-control image" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]" onchange="loadFile(event)">
+                            <img src="${imageSrc}" width="150" height="150" id="image-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}">
                             <input type="hidden" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][id][]" value="${answer ? answer.id : ''}" placeholder="Enter Radio Answer">
                             <span class="error-message text-danger"></span>
                         </div>
@@ -286,24 +286,21 @@
                     </div>
                 </div>
             `;
-            $(document).on('change', `#question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}`, function () {
-                displayImagePreview(this, `#image-preview-${questionId}-${$("#" + answerContainerId + " .form-group").length + 1}`);
-            });
         }
         $(`#${answerContainerId}`).append(answerHtml);
         initializeValidation();
     }
 
-    function displayImagePreview(input, previewId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                console.log(previewId);
-                $(previewId).attr('src', e.target.result);
-            };
-            reader.readAsDataURL(input.files[0]);   
-        }
-    }
+    var loadFile = function(event) {
+        var imgtargetId = 'image'+event.target.id.split("question")[1];
+        console.log(imgtargetId);
+        var reader = new FileReader();
+        reader.onload = function(){
+        var output = document.getElementById(imgtargetId);  
+        output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    };
 
     $(document).on('change', '.type-select', function () {
         var questionId = $(this).attr('id').split('-')[1];
