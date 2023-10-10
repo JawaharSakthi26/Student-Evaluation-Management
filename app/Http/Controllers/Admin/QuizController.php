@@ -35,7 +35,6 @@ class QuizController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-
         $title = Title::create([
             'title' => $request->input('title'),
         ]);
@@ -101,7 +100,6 @@ class QuizController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        
         $title = Title::findOrFail($id);
         $title->update([
             'title' => $request->input('title'),

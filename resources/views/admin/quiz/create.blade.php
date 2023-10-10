@@ -148,29 +148,33 @@
             var answerCount = ansLength.length;
             if(answerCount === 0){
                 if(currentObj.parent().find('.question-textbox').val() != ''){
-                    currentObj.parent().find('.remove-question').after('<div class="validate-answer text-danger">Please select atleast one answer</div>');
+                    currentObj.parent().find('.remove-question').after('<div class="validate-answer text-danger text-bold">Please select atleast one answer</div>');
                     submitFlag = false;
                 }
-            }else if(answerCount != 0){
+            }else if (answerCount !== 0) {
+                console.log(currentObj);
                 var correctAnswer = currentObj.find('.input-group').find('.answer-check');
-                var answerCountFlag = false;
+                var answerCountFlag = false;                
+                var radioButtonChecked = false;
+                
                 correctAnswer.each(function(index, value) {
-                    var radioButtonChecked = $(this).is(':checked');
-                    if (radioButtonChecked) {
-                        console.log('Radio button is checked');
-                        submitFlag = true;
-                    } else {
-                        currentObj.parent().find('.remove-question').after('<div class="validate-answer text-danger">Please select a correct answer for this question</div>')
-                        submitFlag = false;
+                    if ($(this).is(':checked')) {
+                        radioButtonChecked = true;
+                        return false; 
                     }
                 });
+                if (radioButtonChecked) {
+                    submitFlag = true;
+                } else {
+                    currentObj.parent().find('.remove-question').after('<div class="validate-answer text-danger text-bold">Please select a correct answer for this question</div>')
+                    submitFlag = false;
+                }
             }
         });
 
         $('#title').rules('add', {
             atleastOneQuestion: true,
         });
-
     }
 
     function addQuestion(questionData) {
@@ -246,7 +250,7 @@
                     <label for="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}">Checkbox Answer</label>
                     <div class="input-group">
                         <div class="col-sm-1">
-                            <input type="checkbox" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
+                            <input type="checkbox" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2 answer-check" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
                         </div>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]" value="${answer ? answer.answer : ''}" placeholder="Enter Checkbox Answer">
@@ -327,13 +331,7 @@
         e.preventDefault();
         initializeValidation();
 
-        if(!submitFlag)
-        {
-            console.log(submitFlag);
-            return false;
-        }
-
-        if ($('#quiz-form').valid()) { 
+        if ($('#quiz-form').valid() &&  submitFlag == true) { 
             var formData = new FormData($('#quiz-form')[0]);
 
             $.ajax({
