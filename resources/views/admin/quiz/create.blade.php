@@ -46,11 +46,9 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="title">Title</label>
-                                <input type="text" class="form-control" id="title" name="title"
-                                    value="{{ isset($data['title']) ? $data['title']->title : '' }}"
-                                    placeholder="Enter Title">
-                                <input type="hidden" class="form-control" id="deletedQuestions" name="deletedQuestions"
-                                    placeholder="Enter Question">
+                                <input type="text" class="form-control" id="title" name="title" value="{{ isset($data['title']) ? $data['title']->title : '' }}" placeholder="Enter Title">
+                                <input type="hidden" class="form-control" id="deletedQuestions" name="deletedQuestions" placeholder="Enter Question">
+                                <input type="hidden" class="form-control" id="deletedAnswers" name="deletedAnswers" placeholder="Enter Answer">
                                 <span class="error-message text-danger"></span>
                             </div>
                         </div>
@@ -225,13 +223,18 @@
         var answerContainerId = `answers-container-${questionId}`;
         var answerHtml = '';
         var answer = answerValue;
+        var imageSrc = '';
+
+        if (answer && answer.answer) {
+            imageSrc = `{{ asset('uploads/${answer.answer}') }}`;
+        }
         if (questionType == '1') {
             answerHtml = `
                 <div class="form-group">
                     <label for="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}">Radio Answer</label>
                     <div class="input-group">
                         <div class="col-sm-1">
-                            <input type="radio" name="questions[${questionId}][answers][isCorrect][]" value="" class="mt-2 answer-check" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
+                            <input type="radio" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2 answer-check" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
                         </div>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]" value="${answer ? answer.answer : ''}" placeholder="Enter Radio Answer">
@@ -239,9 +242,9 @@
                             <span class="error-message text-danger"></span>
                         </div>
                         <div class="col-sm-1">
-                            <button type="button" class="btn btn-danger remove-answer" data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
+                            <button type="button" class="btn btn-danger remove-answer" data-delete-id="${answer ? answer.id : ''}" data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
                         </div>
-                    </div>
+                    </div> 
                 </div>
             `;
         } else if (questionType == '2') {
@@ -258,8 +261,7 @@
                             <span class="error-message text-danger"></span>
                         </div>
                         <div class="col-sm-1">
-                            <button type="button" class="btn btn-danger remove-answer"
-                                data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
+                            <button type="button" class="btn btn-danger remove-answer" data-delete-id="${answer ? answer.id : ''}" data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -270,22 +272,37 @@
                     <label for="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}">File Answer</label>
                     <div class="input-group">
                         <div class="col-sm-1">
-                            <input type="radio" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
+                            <input type="radio" name="questions[${questionId}][answers][isCorrect][]" value="${$("#" + answerContainerId + " .form-group").length + 1}" class="mt-2 answer-check" ${answer && answer.isCorrect == '1' ? 'checked' : ''}>
                         </div>
                         <div class="col-sm-10">
-                            <input type="file" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]">
+                            <input type="file" class="form-control image" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][answer][]">
+                            <img src="${imageSrc}" width="150" height="150" id="image-preview-${questionId}-${$("#" + answerContainerId + " .form-group").length + 1}">
                             <input type="hidden" class="form-control" id="question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}" name="questions[${questionId}][answers][id][]" value="${answer ? answer.id : ''}" placeholder="Enter Radio Answer">
                             <span class="error-message text-danger"></span>
                         </div>
                         <div class="col-sm-1">
-                            <button type="button" class="btn btn-danger remove-answer" data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
+                            <button type="button" class="btn btn-danger remove-answer" data-delete-id="${answer ? answer.id : ''}" data-answer-id="${$("#" + answerContainerId + " .form-group").length + 1}">Remove</button>
                         </div>
                     </div>
                 </div>
             `;
+            $(document).on('change', `#question-${questionId}-answer-${$("#" + answerContainerId + " .form-group").length + 1}`, function () {
+                displayImagePreview(this, `#image-preview-${questionId}-${$("#" + answerContainerId + " .form-group").length + 1}`);
+            });
         }
         $(`#${answerContainerId}`).append(answerHtml);
         initializeValidation();
+    }
+
+    function displayImagePreview(input, previewId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                console.log(previewId);
+                $(previewId).attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);   
+        }
     }
 
     $(document).on('change', '.type-select', function () {
@@ -300,6 +317,15 @@
 
     $(document).on('click', '.remove-answer', function () {
         var answerContainer = $(this).closest('.form-group');
+        var deleteAnswerId = $(this).data('delete-id');
+        if(deleteAnswerId){
+            var deletedAnswerIds = $('#deletedAnswers').val();
+            if(deletedAnswerIds != ''){
+                deletedAnswerIds = deletedAnswerIds + ',';
+            }
+            deletedAnswerIds += deleteAnswerId;
+            $('#deletedAnswers').val(deletedAnswerIds);
+        }
         answerContainer.remove();
     });
 
