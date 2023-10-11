@@ -109,7 +109,7 @@ class QuizController extends Controller
                 ]
             );
 
-            $answerObj = new Answer;
+            $answerObj = $question->answers();
             $existingAnswerIds = $answerObj->pluck('id')->toArray();
     
             foreach ($questionData['answers']['answer'] as $key => $value) {
